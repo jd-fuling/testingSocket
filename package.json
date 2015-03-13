@@ -1,0 +1,8 @@
+{
+  "name": "first-zocket",
+  "version": "0.0.1",
+  "description": "some random tests for socket.io",
+  "dependencies": {
+    "express": "^4.10.2"
+  }
+}
