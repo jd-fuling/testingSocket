@@ -3,9 +3,11 @@
   "version": "0.0.1",
   "description": "some random tests for socket.io",
   "dependencies": {
+    "ejs": "^2.3.1",
     "express": "^4.10.2",
     "grunt": "^0.4.5",
-    "socket.io": "^1.3.5",
-    "grunt-contrib-uglify": "~0.5.0"
+    "grunt-contrib-uglify": "~0.5.0",
+    "nodemon": "^1.3.7",
+    "socket.io": "^1.3.5"
   }
 }
