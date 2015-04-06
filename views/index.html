@@ -11,6 +11,7 @@
         #messages { list-style-type: none; margin: 0; padding: 0; }
         #messages li { padding: 5px 10px; }
         #messages li:nth-child(odd) { background: #eee; }
+        .system{    font-family: "leitura-news", serif; color: darkred; }
     </style>
 </head>
 <body>
@@ -19,7 +20,7 @@
     <input id="m" autocomplete="off" /><button>Send</button>
 </form>
 <script src="/socket.io/socket.io.js"></script>
-<script src="/jquery.js"></script>
+<script src="/bower_components/jquery/dist/jquery.min.js"></script>
 <script>
     var socket = io();
     $('form').submit(function(){
@@ -27,8 +28,15 @@
         $('#m').val('');
         return false;
     });
+    socket.on('connected', function(id){
+        console.log("connected, id: " + id);
+        this.id = id;
+    });
     socket.on('chat message', function(msg){
-        $('#messages').append($('<li/>').text(msg));
+        $('#messages').append($('<li/>').text('('+msg.sender.id+') ' + msg.sender.name + ': ' + msg.message));
+    });
+    socket.on('systemMessage', function(msg){
+        $('#messages').append($('<li/>').addClass('system').html(msg.replace(/\n/g, "<br />")))
     });
 </script>
 </body>

@@ -2,13 +2,50 @@
  * Created by jordrevl on 14.03.2015.
  */
 var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser', { preload: preload, create: create, update: update });
-var socket = io();
+var socket;
+
+var players = [];
+var myId;
 
 function preload() {
+    console.log(socket);
     game.load.image('sky', '/gameassets/sprites/sky.png');
     game.load.image('star', '/gameassets/sprites/star.png');
     game.load.image('ground', '/gameassets/sprites/platform.png');
     game.load.spritesheet('dude', '/gameassets/sprites/dude.png', 32, 48);
+
+    socket = io('ws://localhost:3005');
+    socket.on('connect', function(){
+        console.log("connected...");
+        socket.on('servedId', function(data){
+            console.log("I have an ID! ", data);
+            myId = data;
+        });
+
+        socket.on('newPlayer', function(pl){
+            console.log("a new player joined ", pl.id);
+            // Player
+            var p = game.add.sprite(32, game.world.height - 150, 'dude');
+            game.physics.arcade.enable(p);
+
+            p.body.bounce.y = 0.2;
+            p.body.gravity.y = 300;
+            p.body.collideWorldBounds = true;
+
+            p.animations.add('left', [0,1,2,3], 10, true);
+            p.animations.add('right', [5,6,7,8], 10, true);
+            p.id = pl.id;
+            players.push(p);
+        });
+
+        socket.on('positionUpdate', function(updatedPlayer){
+            for(var i=0;i<players.length;i++){
+                if (players[i].id == updatedPlayer.id){
+                    players[i].body.position = updatedPlayer.position;
+                }
+            }
+        });
+    });
 }
 var platforms, player, cursors;
 function create() {
@@ -36,14 +73,17 @@ function create() {
 
     player.animations.add('left', [0,1,2,3], 10, true);
     player.animations.add('right', [5,6,7,8], 10, true);
+    player.id = myId;
+    players.push(player);
 
     cursors = game.input.keyboard.createCursorKeys();
+    game.stage.disableVisibilityChange = true;
 
 }
 var acceleration = 10,
     topspeed = 200;
 function update() {
-    game.physics.arcade.collide(player, platforms);
+    game.physics.arcade.collide(players, platforms);
 
     if(cursors.left.isDown){
         if(Math.abs(player.body.velocity.x) < topspeed){
@@ -71,9 +111,5 @@ function update() {
 
 
 function simpleServerUpdate(){
-    socket.emit('gameupdate', {
-        player:{
-            position : player.position
-        }
-    });
+    socket.emit('positionUpdate', player.body.position);
 }
