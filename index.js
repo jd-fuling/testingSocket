@@ -5,7 +5,6 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var game = require('./game.js');
 var chat = require('./chat.js');
 
 // set the view engine to ejs
@@ -23,23 +22,12 @@ app.get('/', function(req, res){
     res.render('index.html'); // include .html (default is .ejs)
 });
 
-// init game
-game(io);
 app.get('/phaser', function(req, res){
     res.render('firstphaser.html');
 });
 
-/*io.on('connection', function(socket){
-    console.log("Player connected");
-    socket.on('chat message', function(msg){
-        io.emit('chat message', msg);
-    });
-
-    socket.on('gameupdate', function(update){
-        console.log(socket.id);
-        console.log(update);
-    });
-});*/
+// init game
+require('./Game.js')(io);
 
 http.listen(3005, function(){
     console.log('listening on *:3005');
